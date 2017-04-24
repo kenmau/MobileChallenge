@@ -2,6 +2,7 @@ package com.example.ken.worldcurrencyconverter.webclient;
 
 import com.example.ken.worldcurrencyconverter.model.ExchangeRatesResponse;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -12,5 +13,5 @@ import retrofit2.http.Query;
 
 public interface ApiInterface {
     @GET("latest")
-    Call<ExchangeRatesResponse> getLatestExchangeRates(@Query("base") String baseCurrency);
+    Observable<ExchangeRatesResponse> getLatestExchangeRates(@Query("base") String baseCurrency);
 }

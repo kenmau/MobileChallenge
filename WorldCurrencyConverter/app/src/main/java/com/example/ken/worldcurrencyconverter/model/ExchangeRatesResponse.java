@@ -2,8 +2,8 @@ package com.example.ken.worldcurrencyconverter.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ken on 2017-04-23.
@@ -17,9 +17,10 @@ public class ExchangeRatesResponse {
     String date;
 
     @SerializedName("rates")
-    Rates rates;
+    Map<String, Double> rates;
 
     public ExchangeRatesResponse() {
+        rates = new HashMap<>();
     }
 
 //    public static ExchangeRatesResponse parseJSON(String response) {
@@ -36,7 +37,7 @@ public class ExchangeRatesResponse {
         return date;
     }
 
-    public Rates getRates() {
+    public Map<String, Double> getRates() {
         return rates;
     }
 }

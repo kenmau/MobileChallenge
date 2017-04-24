@@ -7,14 +7,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.ken.worldcurrencyconverter.R;
-import com.example.ken.worldcurrencyconverter.model.Rates;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ken on 2017-04-23.
  */
 
 public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHolder> {
-    private Rates mRatesData;
+    private List<String> mCurrencyCode;
+    private List<Double> mRates;
 
     public CurrencyAdapter() {
     }
@@ -29,18 +33,24 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
     @Override
     public void onBindViewHolder(CurrencyAdapter.ViewHolder holder, int position) {
         // TODO
-        holder.currencyCode.setText("USD");
-        holder.currencyValue.setText("123.45");
+        holder.currencyCode.setText(mCurrencyCode.get(position));
+        holder.currencyValue.setText(String.format("%.2f", mRates.get(position)));
     }
 
     @Override
     public int getItemCount() {
-        // TODO
-        return 20;
+
+        if (mCurrencyCode == null) {
+            return 0;
+        }
+
+        return mCurrencyCode.size();
     }
 
-    public void setRates(Rates rates) {
-        mRatesData = rates;
+    public void setRates(Map<String, Double> rates) {
+        this.mCurrencyCode = new ArrayList<>(rates.keySet());
+        this.mRates = new ArrayList<>(rates.values());
+
         notifyDataSetChanged();
     }
 

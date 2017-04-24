@@ -17,5 +17,7 @@ public class MainActivity extends AppCompatActivity {
         // Have MainActivity launch a new activity in case we want to swap and do A/B testing
         Intent intent = new Intent(this, ExchangeRatesActivity.class);
         startActivity(intent);
+
+        // TODO onBack() seems to go back to this activity from ExchangeRatesActivity.  Need to handle that
     }
 }

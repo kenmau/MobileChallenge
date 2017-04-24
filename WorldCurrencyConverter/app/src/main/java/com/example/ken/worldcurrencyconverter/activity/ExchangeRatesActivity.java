@@ -6,19 +6,25 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.EditText;
 
 import com.example.ken.worldcurrencyconverter.R;
 import com.example.ken.worldcurrencyconverter.adapter.CurrencyAdapter;
-import com.example.ken.worldcurrencyconverter.model.Rates;
+import com.example.ken.worldcurrencyconverter.model.ExchangeRatesResponse;
 import com.example.ken.worldcurrencyconverter.webclient.ApiClient;
 import com.example.ken.worldcurrencyconverter.webclient.ApiInterface;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Cancellable;
@@ -26,6 +32,10 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
+import okhttp3.ResponseBody;
+import retrofit2.HttpException;
+import retrofit2.Response;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ExchangeRatesActivity extends AppCompatActivity {
     private static final String TAG = ExchangeRatesActivity.class.getSimpleName();
@@ -38,11 +48,11 @@ public class ExchangeRatesActivity extends AppCompatActivity {
     private RecyclerView mRecyclerViewCurrencies;
 
     // Recycler View Dependencies
-    private RecyclerView.Adapter mRecyclerViewAdapter;
+    private CurrencyAdapter mRecyclerViewAdapter;
     private RecyclerView.LayoutManager mRecyclerViewLayoutManager;
 
     // Web Client
-    private ApiInterface _apiService;
+    private ApiInterface mApiService;
 
     // RxAndroid Cleanup
     private Disposable _disposable;
@@ -94,8 +104,6 @@ public class ExchangeRatesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exchange_rates);
 
-        // Setup Web Client
-        _apiService = ApiClient.getClient().create(ApiInterface.class);
 
         // Initialize layout properties
         mDollarsEditText = (EditText) findViewById(R.id.etDollars);
@@ -110,6 +118,24 @@ public class ExchangeRatesActivity extends AppCompatActivity {
 
         mRecyclerViewAdapter = new CurrencyAdapter();
         mRecyclerViewCurrencies.setAdapter(mRecyclerViewAdapter);
+
+
+        // Setup Web Client
+        mApiService = ApiClient.getClient().create(ApiInterface.class);
+
+//        call.enqueue(new Callback<ExchangeRatesResponse>() {
+//            @Override
+//            public void onResponse(Call<ExchangeRatesResponse> call, Response<ExchangeRatesResponse> response) {
+//                Log.d(TAG, "Exchange Rates Successfully Received");
+//                ExchangeRatesResponse exchangeRates = response.body();
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ExchangeRatesResponse> call, Throwable t) {
+//                Log.e(TAG, "Exchange Rates Receive Failed");
+//                Log.e(TAG, t.toString());
+//            }
+//        });
     }
 
     @Override
@@ -125,27 +151,56 @@ public class ExchangeRatesActivity extends AppCompatActivity {
                     @Override
                     public void accept(String s) throws Exception {
                         // TODO Show a progress bar while doing work
+                        Log.d(TAG, "TODO: Show Progress Bar");
                     }
                 })
                 // On the IO thread
                 .observeOn(Schedulers.io())
-                .map(new Function<String, Rates>() {
+                .map(new Function<String, Boolean>() {
                     @Override
-                    public Rates apply(String s) throws Exception {
-                        // TODO Do network call to fetch rates
+                    public Boolean apply(String s) throws Exception {
+                        Log.d(TAG, "Map Values");
 
-                        // TODO Return back the rates
-                        return null;
+                        // Do network call to fetch rates
+                        // TODO use the appropirate currency conversion
+                        Observable<ExchangeRatesResponse> call = mApiService.getLatestExchangeRates("CAD");
+
+                        call.subscribeOn(Schedulers.newThread())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<ExchangeRatesResponse>() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+                                        Log.d(TAG, "On Subscribe");
+                                    }
+
+                                    @Override
+                                    public void onNext(ExchangeRatesResponse value) {
+                                        Log.d(TAG, "Exchange Rates Successfully Received");
+                                        mRecyclerViewAdapter.setRates(value.getRates());
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        // TODO Handle errors
+                                        e.printStackTrace();
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+
+                                    }
+                                });
+
+                        return true;
                     }
                 })
                 // On the UI Thread
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Rates>() {
+                .subscribe(new Consumer<Boolean>() {
                     @Override
-                    public void accept(Rates rates) throws Exception {
+                    public void accept(Boolean b) throws Exception {
+                        Log.d(TAG, "TODO: Hide Progress Bar");
                         // TODO Hide progress bar
-
-                        // TODO Update the UI with the new rates
                     }
                 });
     }
