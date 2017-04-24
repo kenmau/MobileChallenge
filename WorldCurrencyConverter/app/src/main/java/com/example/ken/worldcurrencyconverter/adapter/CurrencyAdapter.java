@@ -19,6 +19,7 @@ import java.util.Map;
 public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHolder> {
     private List<String> mCurrencyCode;
     private List<Double> mRates;
+    private double baseValue;
 
     public CurrencyAdapter() {
     }
@@ -34,7 +35,7 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
     public void onBindViewHolder(CurrencyAdapter.ViewHolder holder, int position) {
         // TODO
         holder.currencyCode.setText(mCurrencyCode.get(position));
-        holder.currencyValue.setText(String.format("%.2f", mRates.get(position)));
+        holder.currencyValue.setText(String.format("%.2f", mRates.get(position)*baseValue));
     }
 
     @Override
@@ -47,11 +48,31 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
         return mCurrencyCode.size();
     }
 
-    public void setRates(Map<String, Double> rates) {
+    @Override
+    public long getItemId(int position) {
+        return mCurrencyCode.get(position).hashCode();
+    }
+
+    public void clearRates() {
+        int oldSize = 0;
+
+        if (this.mCurrencyCode != null) {
+            oldSize = this.mCurrencyCode.size();
+        }
+
+        this.mCurrencyCode = new ArrayList<>();
+        this.mRates = new ArrayList<>();
+        this.baseValue = 0.0;
+
+        notifyItemRangeRemoved(0, oldSize);
+    }
+
+    public void setRates(Map<String, Double> rates, double baseValue) {
         this.mCurrencyCode = new ArrayList<>(rates.keySet());
         this.mRates = new ArrayList<>(rates.values());
+        this.baseValue = baseValue;
 
-        notifyDataSetChanged();
+        notifyItemRangeInserted(0, mCurrencyCode.size());
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

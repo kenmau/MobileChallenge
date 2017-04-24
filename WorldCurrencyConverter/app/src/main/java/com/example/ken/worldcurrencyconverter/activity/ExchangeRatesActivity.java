@@ -1,13 +1,23 @@
 package com.example.ken.worldcurrencyconverter.activity;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.example.ken.worldcurrencyconverter.R;
 import com.example.ken.worldcurrencyconverter.adapter.CurrencyAdapter;
@@ -31,6 +41,7 @@ import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
@@ -39,13 +50,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ExchangeRatesActivity extends AppCompatActivity {
     private static final String TAG = ExchangeRatesActivity.class.getSimpleName();
-    private static final int DEBOUNCE_THRESHOLD = 1000; // in ms
+    private static final int DEBOUNCE_THRESHOLD = 500; // in ms
     private static final int GRID_LAYOUT_SPAN_COUNT = 2; // show 2 cards width wise
 
     // Layout Views
     private EditText mDollarsEditText;
     private EditText mCentsEditText;
+    private Spinner mCurrencyCodeSpinner;
     private RecyclerView mRecyclerViewCurrencies;
+
+    private String mBaseCurrencySelected;
 
     // Recycler View Dependencies
     private CurrencyAdapter mRecyclerViewAdapter;
@@ -99,6 +113,76 @@ public class ExchangeRatesActivity extends AppCompatActivity {
                 .debounce(DEBOUNCE_THRESHOLD, TimeUnit.MILLISECONDS);
     }
 
+    private Observable<String> createCentsTextChangeObservable() {
+        final Observable<String> textChangeObservable = Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(final ObservableEmitter<String> e) throws Exception {
+                final TextWatcher watcher = new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        // When the user inputs/deletes text, emit a signal to let consumers know
+                        e.onNext(s.toString());
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+                    }
+                };
+
+                // Register the callback
+                mCentsEditText.addTextChangedListener(watcher);
+
+                e.setCancellable(new Cancellable() {
+                    @Override
+                    public void cancel() throws Exception {
+                        // Unregister the callback
+                        mCentsEditText.removeTextChangedListener(watcher);
+                    }
+                });
+            }
+        });
+
+        // TODO: Make sure input string is a number
+        // Add a de-bounce "filter" so we're not constantly emitting
+        return textChangeObservable
+                .debounce(DEBOUNCE_THRESHOLD, TimeUnit.MILLISECONDS);
+    }
+
+    private Observable<String> createCurrencyCodeSpinnerObservable() {
+        final PublishSubject<String> selectSubject = PublishSubject.create();
+        // for production code, unsubscribe, UI thread assertions are needed
+        // see WidgetObservable from rxandroid for example
+        mCurrencyCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String item = (String) parent.getItemAtPosition(position);
+                mBaseCurrencySelected = item;
+
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (mDollarsEditText != null && mDollarsEditText.hasWindowFocus()) {
+                    imm.hideSoftInputFromWindow(mDollarsEditText.getWindowToken(), 0);
+                }
+                if (mCentsEditText != null && mCentsEditText.hasWindowFocus()) {
+                    imm.hideSoftInputFromWindow(mCentsEditText.getWindowToken(), 0);
+                }
+
+                selectSubject.onNext(item);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        return selectSubject;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +192,7 @@ public class ExchangeRatesActivity extends AppCompatActivity {
         // Initialize layout properties
         mDollarsEditText = (EditText) findViewById(R.id.etDollars);
         mCentsEditText = (EditText) findViewById(R.id.etCents);
+        mCurrencyCodeSpinner = (Spinner) findViewById(R.id.spinCurrencyCode);
         mRecyclerViewCurrencies = (RecyclerView) findViewById(R.id.rvCurrencies);
 
         // Setup Recycler View Dependencies
@@ -117,41 +202,57 @@ public class ExchangeRatesActivity extends AppCompatActivity {
         mRecyclerViewCurrencies.setItemAnimator(new SlideInUpAnimator());
 
         mRecyclerViewAdapter = new CurrencyAdapter();
+        mRecyclerViewAdapter.setHasStableIds(true);
         mRecyclerViewCurrencies.setAdapter(mRecyclerViewAdapter);
+
+        // Setup Spinner
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this, R.array.currency_code_array, android.R.layout.simple_spinner_dropdown_item);
+        mCurrencyCodeSpinner.setAdapter(spinnerAdapter);
+
 
 
         // Setup Web Client
         mApiService = ApiClient.getClient().create(ApiInterface.class);
 
-//        call.enqueue(new Callback<ExchangeRatesResponse>() {
-//            @Override
-//            public void onResponse(Call<ExchangeRatesResponse> call, Response<ExchangeRatesResponse> response) {
-//                Log.d(TAG, "Exchange Rates Successfully Received");
-//                ExchangeRatesResponse exchangeRates = response.body();
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ExchangeRatesResponse> call, Throwable t) {
-//                Log.e(TAG, "Exchange Rates Receive Failed");
-//                Log.e(TAG, t.toString());
-//            }
-//        });
+        // Intercept any non-digits and shift in focus to cents field
+        if (mDollarsEditText != null) {
+            mDollarsEditText.setFilters(new InputFilter[]{
+                    new InputFilter() {
+                        @Override
+                        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+
+                            if (source.toString().matches("[0-9]*")) {
+                                return source;
+                            }
+
+                            if (mCentsEditText != null) {
+                                mCentsEditText.requestFocus();
+                            }
+
+                            // Filter out any non-digits
+                            return "";
+                        }
+                    }
+            });
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        Observable<String> dollarsTextChangeStream = createDollarsTextChangeObservable();
+        Observable<String> amountTextChangeStream = Observable.merge(createDollarsTextChangeObservable(), createCentsTextChangeObservable());
+        Observable<String> currencyCodeChangeStream = createCurrencyCodeSpinnerObservable();
 
-        _disposable = dollarsTextChangeStream
+        Observable<String> inputChangeStream = Observable.merge(amountTextChangeStream, currencyCodeChangeStream);
+
+        _disposable = inputChangeStream
                 // On the UI Thread
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(new Consumer<String>() {
                     @Override
                     public void accept(String s) throws Exception {
-                        // TODO Show a progress bar while doing work
-                        Log.d(TAG, "TODO: Show Progress Bar");
+                        // TODO Remove?
                     }
                 })
                 // On the IO thread
@@ -159,24 +260,38 @@ public class ExchangeRatesActivity extends AppCompatActivity {
                 .map(new Function<String, Boolean>() {
                     @Override
                     public Boolean apply(String s) throws Exception {
-                        Log.d(TAG, "Map Values");
+                        Log.d(TAG, "Map Values: " + s);
+
+                        Observable<ExchangeRatesResponse> call;
 
                         // Do network call to fetch rates
-                        // TODO use the appropirate currency conversion
-                        Observable<ExchangeRatesResponse> call = mApiService.getLatestExchangeRates("CAD");
+                        if (mBaseCurrencySelected == null) {
+                            // Default to CAD
+                            call = mApiService.getLatestExchangeRates("CAD");
+                        } else {
+                            call = mApiService.getLatestExchangeRates(mBaseCurrencySelected);
+                        }
 
                         call.subscribeOn(Schedulers.newThread())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new Observer<ExchangeRatesResponse>() {
+
+                                    ExchangeRatesResponse data;
+
                                     @Override
                                     public void onSubscribe(Disposable d) {
                                         Log.d(TAG, "On Subscribe");
+
+                                        // TODO Show a progress bar while doing work
+                                        Log.d(TAG, "TODO: Show Progress Bar");
+
                                     }
 
                                     @Override
                                     public void onNext(ExchangeRatesResponse value) {
                                         Log.d(TAG, "Exchange Rates Successfully Received");
-                                        mRecyclerViewAdapter.setRates(value.getRates());
+                                        data = value;
+
                                     }
 
                                     @Override
@@ -187,7 +302,26 @@ public class ExchangeRatesActivity extends AppCompatActivity {
 
                                     @Override
                                     public void onComplete() {
+                                        Log.d(TAG, "On Complete");
+                                        int dollars = 0, cents = 0;
+                                        double combinedAmount;
 
+                                        if (!TextUtils.isEmpty(mDollarsEditText.getText().toString())) {
+                                            dollars = Integer.parseInt(mDollarsEditText.getText().toString());
+                                        }
+
+                                        if (!TextUtils.isEmpty(mCentsEditText.getText().toString())) {
+                                            cents = Integer.parseInt(mCentsEditText.getText().toString());
+                                        }
+
+                                        combinedAmount = dollars + cents/100.0;
+
+                                        mRecyclerViewAdapter.clearRates();
+
+                                        mRecyclerViewAdapter.setRates(data.getRates(), combinedAmount);
+
+                                        Log.d(TAG, "TODO: Hide Progress Bar");
+                                        // TODO Hide progress bar
                                     }
                                 });
 
@@ -199,8 +333,7 @@ public class ExchangeRatesActivity extends AppCompatActivity {
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean b) throws Exception {
-                        Log.d(TAG, "TODO: Hide Progress Bar");
-                        // TODO Hide progress bar
+                        // TODO Remove?
                     }
                 });
     }

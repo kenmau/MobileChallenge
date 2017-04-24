@@ -3,4 +3,6 @@
 
     <string name="currency_code_placeholder">XYZ</string>
     <string name="currency_value_placeholder">123.45</string>
+
+    <string name="convert">Convert</string>
 </resources>
