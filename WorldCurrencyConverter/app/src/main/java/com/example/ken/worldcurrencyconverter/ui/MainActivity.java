@@ -1,4 +1,4 @@
-package com.example.ken.worldcurrencyconverter.activity;
+package com.example.ken.worldcurrencyconverter.ui;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
