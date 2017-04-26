@@ -21,7 +21,7 @@ public interface ExchangeRatesDataSource {
 
         Observable<ExchangeRatesResponse> getRates(String baseCurrencyCode);
 
-        Calendar lastRemotelyRefreshed();
+        Calendar lastRemotelyRefreshed(String baseCurrencyCode);
 
     }
 

@@ -40,8 +40,8 @@ public class ExchangeRatesRepository  {
         Calendar now = Calendar.getInstance();
 
         // If it's less than 30 minutes AND we have a local copy of the rates relative to the baseCurrencyCode, use it
-        if (mExchangeRatesRemoteDataSource.lastRemotelyRefreshed() != null
-                && (now.getTimeInMillis() - mExchangeRatesRemoteDataSource.lastRemotelyRefreshed().getTimeInMillis()) < REMOTE_REFRESH_THRESHOLD
+        if (mExchangeRatesRemoteDataSource.lastRemotelyRefreshed(baseCurrencyCode) != null
+                && (now.getTimeInMillis() - mExchangeRatesRemoteDataSource.lastRemotelyRefreshed(baseCurrencyCode).getTimeInMillis()) < REMOTE_REFRESH_THRESHOLD
                 && mExchangeRatesLocalDataSource.hasLocalRates(baseCurrencyCode))
                 {
             return mExchangeRatesLocalDataSource.getRates(baseCurrencyCode);

@@ -7,6 +7,8 @@ import com.example.ken.worldcurrencyconverter.webclient.FixerIOApiClient;
 import com.example.ken.worldcurrencyconverter.webclient.ApiInterface;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -23,7 +25,7 @@ public class ExchangeRatesRemoteDataSource implements ExchangeRatesDataSource.Re
     // Web Client
     private ApiInterface mApiService;
 
-    private static Calendar mLastRemotelyRefreshed;
+    private static Map<String, Calendar> mLastRemotelyRefreshed;
 
     // Singleton
     public static ExchangeRatesRemoteDataSource getInstance() {
@@ -38,18 +40,23 @@ public class ExchangeRatesRemoteDataSource implements ExchangeRatesDataSource.Re
     private ExchangeRatesRemoteDataSource() {
         // Setup Web Client
         mApiService = FixerIOApiClient.getClient().create(ApiInterface.class);
+
+        // Setup Map to store last refreshed dates with respect to the currency
+        mLastRemotelyRefreshed = new HashMap<>();
     }
 
     @Override
     public Observable<ExchangeRatesResponse> getRates(String baseCurrencyCode) {
-        mLastRemotelyRefreshed = Calendar.getInstance();
+        mLastRemotelyRefreshed.put(baseCurrencyCode, Calendar.getInstance());
 
         return mApiService.getLatestExchangeRates(baseCurrencyCode)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Calendar lastRemotelyRefreshed() {
-        return mLastRemotelyRefreshed;
+    public Calendar lastRemotelyRefreshed(String baseCurrencyCode) {
+        Calendar c = mLastRemotelyRefreshed.get(baseCurrencyCode);
+
+        return c;
     }
 }
