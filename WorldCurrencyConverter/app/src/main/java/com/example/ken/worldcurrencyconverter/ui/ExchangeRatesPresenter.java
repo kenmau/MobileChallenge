@@ -51,7 +51,12 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
 
     @Override
     public void setDollars(String dollarsAmount) {
-        if (!TextUtils.isEmpty(dollarsAmount)) {
+        if (dollarsAmount != null) {
+            // In the case it is empty string, it means a value of 0
+            if (dollarsAmount.equals("")) {
+                dollarsAmount = "0";
+            }
+
             try {
                 mDollarsAmount = Integer.parseInt(dollarsAmount);
                 Log.d(TAG, "Setting Dollar Amount: " + mDollarsAmount.toString());
@@ -70,7 +75,12 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
 
     @Override
     public void setCents(String centsAmount) {
-        if (!TextUtils.isEmpty(centsAmount)) {
+        if (centsAmount != null) {
+            // In the case it is empty string, it means a value of 0
+            if (centsAmount.equals("")) {
+                centsAmount = "0";
+            }
+
             try {
                 mCentsAmount = Integer.parseInt(centsAmount);
                 Log.d(TAG, "Setting Cent Amount: " + mCentsAmount.toString());
