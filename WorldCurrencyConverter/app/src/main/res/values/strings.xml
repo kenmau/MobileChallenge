@@ -4,5 +4,6 @@
     <string name="currency_code_placeholder">XYZ</string>
     <string name="currency_value_placeholder">123.45</string>
 
-    <string name="convert">Convert</string>
+    <string name="convert">Amount:</string>
+    <string name="convert_button">CONVERT</string>
 </resources>

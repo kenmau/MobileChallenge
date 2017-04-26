@@ -3,7 +3,9 @@ package com.example.ken.worldcurrencyconverter.ui;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.example.ken.worldcurrencyconverter.data.remote.RatesRemoteDataSource;
+import com.example.ken.worldcurrencyconverter.model.datasource.ExchangeRatesRepository;
+import com.example.ken.worldcurrencyconverter.model.datasource.local.ExchangeRatesLocalDataSource;
+import com.example.ken.worldcurrencyconverter.model.datasource.remote.ExchangeRatesRemoteDataSource;
 import com.example.ken.worldcurrencyconverter.model.ExchangeRatesResponse;
 
 import java.net.UnknownHostException;
@@ -105,15 +107,13 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
 
         // Do network call to fetch rates
 
-        call = RatesRemoteDataSource.getInstance().getRates(mBaseCurrency);
+        call = ExchangeRatesRepository.getInstance().getRates(mBaseCurrency);
         call.subscribe(new Observer<ExchangeRatesResponse>() {
 
             ExchangeRatesResponse data;
 
             @Override
             public void onSubscribe(Disposable d) {
-                Log.d(TAG, "On Subscribe");
-
                 mView.showProgressBar();
             }
 
@@ -121,6 +121,9 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
             public void onNext(ExchangeRatesResponse value) {
                 Log.d(TAG, "Exchange Rates Successfully Received");
                 data = value;
+
+                // Save to persistent storage here
+                ExchangeRatesLocalDataSource.getInstance().saveRates(value);
             }
 
             @Override
@@ -136,7 +139,6 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
 
             @Override
             public void onComplete() {
-                Log.d(TAG, "On Complete");
                 double combinedAmount;
 
                 // Assumption: Cents will only have 2 decimal places.  We could have more, we just have to do extra handling.
@@ -148,5 +150,17 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
                 mView.hideProgressBar();
             }
         });
+    }
+
+    public Integer getmDollarsAmount() {
+        return mDollarsAmount;
+    }
+
+    public Integer getmCentsAmount() {
+        return mCentsAmount;
+    }
+
+    public String getmBaseCurrency() {
+        return mBaseCurrency;
     }
 }

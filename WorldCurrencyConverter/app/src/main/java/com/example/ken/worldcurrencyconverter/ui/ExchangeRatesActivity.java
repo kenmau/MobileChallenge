@@ -1,5 +1,6 @@
 package com.example.ken.worldcurrencyconverter.ui;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -19,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 import com.example.ken.worldcurrencyconverter.R;
@@ -56,27 +58,21 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
     private Spinner mCurrencyCodeSpinner;
     private Button mGoButton;
     private RecyclerView mRecyclerViewCurrencies;
-
-    private String mBaseCurrencySelected;
+    private ProgressBar mProgressBar;
 
     // Recycler View Dependencies
     private CurrencyAdapter mRecyclerViewAdapter;
     private RecyclerView.LayoutManager mRecyclerViewLayoutManager;
 
-
-    // Setup RxAndroid Observables (Could use RxBinding here for these)
+    // To hold our RxBinding references
     CompositeDisposable compositeDisposable;
 
     private Observable<String> createCurrencyCodeSpinnerObservable() {
         final PublishSubject<String> selectSubject = PublishSubject.create();
-        // for production code, unsubscribe, UI thread assertions are needed
-        // see WidgetObservable from rxandroid for example
         mCurrencyCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String item = (String) parent.getItemAtPosition(position);
-                mBaseCurrencySelected = item;
-
                 selectSubject.onNext(item);
             }
 
@@ -106,6 +102,7 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
         mCurrencyCodeSpinner = (Spinner) findViewById(R.id.spinCurrencyCode);
         mGoButton = (Button) findViewById(R.id.bGo);
         mRecyclerViewCurrencies = (RecyclerView) findViewById(R.id.rvCurrencies);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         // Setup Recycler View Dependencies
         mRecyclerViewLayoutManager = new GridLayoutManager(this, GRID_LAYOUT_SPAN_COUNT);
@@ -150,6 +147,7 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
         super.onResume();
 
         // Setup RxBinding Subscriptions to view elements
+        // Each subscription simply passes the value to the presenter
 
         Disposable dollarEditTextDisp =
                 RxTextView.textChanges(mDollarsEditText)
@@ -209,6 +207,9 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
         compositeDisposable.clear();
     }
 
+
+    // View Actions
+
     @Override
     public void clearRates() {
         mRecyclerViewAdapter.clearRates();
@@ -221,14 +222,12 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
 
     @Override
     public void showProgressBar() {
-        // TODO
-        Log.d(TAG, "TODO: Show Progress Bar");
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideProgressBar() {
-        // TODO
-        Log.d(TAG, "TODO: Hide Progress Bar");
+        mProgressBar.setVisibility(View.GONE);
     }
 
     @Override
