@@ -79,6 +79,9 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
             // In the case it is empty string, it means a value of 0
             if (centsAmount.equals("")) {
                 centsAmount = "0";
+            } else if (centsAmount.length() == 1) {
+                // The case where someone enters in 1 digit into the cents field (i.e. "5".  This actually means "50").
+                centsAmount += "0";
             }
 
             try {
