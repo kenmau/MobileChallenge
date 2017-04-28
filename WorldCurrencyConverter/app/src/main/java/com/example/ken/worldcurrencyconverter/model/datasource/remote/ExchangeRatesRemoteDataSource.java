@@ -50,7 +50,7 @@ public class ExchangeRatesRemoteDataSource implements ExchangeRatesDataSource.Re
         mLastRemotelyRefreshed.put(baseCurrencyCode, Calendar.getInstance());
 
         return mApiService.getLatestExchangeRates(baseCurrencyCode)
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
