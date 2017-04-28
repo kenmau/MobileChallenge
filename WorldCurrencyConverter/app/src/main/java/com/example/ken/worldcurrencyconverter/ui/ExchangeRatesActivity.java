@@ -220,18 +220,18 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
     @Override
     public void showConnectionError() {
         Snackbar snackbar = Snackbar
-                .make(mParentLayout, "Check Internet Connection!", Snackbar.LENGTH_LONG);
+                .make(mParentLayout, getResources().getString(R.string.check_internet_connection), Snackbar.LENGTH_LONG);
         snackbar.show();
     }
 
     @Override
     public void showInvalidInputDollarsEditText() {
-        mDollarsEditText.setError("Please enter an amount between 0 and " + Integer.MAX_VALUE);
+        mDollarsEditText.setError(getResources().getString(R.string.enter_number_between) + Integer.MAX_VALUE);
     }
 
     @Override
     public void showInvalidInputCentsEditText() {
-        mDollarsEditText.setError("Please enter an amount between 0 and " + Integer.MAX_VALUE);
+        mDollarsEditText.setError(getResources().getString(R.string.enter_number_between) + "99");
     }
 
 

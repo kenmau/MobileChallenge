@@ -6,4 +6,7 @@
 
     <string name="convert">Amount:</string>
     <string name="convert_button">CONVERT</string>
+
+    <string name="check_internet_connection">Check Internet Connection!</string>
+    <string name="enter_number_between">Please enter an amount between 0 and </string>
 </resources>
