@@ -12,6 +12,7 @@
 - Rates are only fetched when the CONVERT button is pressed.  If rates should be fetched as the user types, debouncing should be added (RxAndroid has a convenient way)
 - My git commits may include more than 1 feature and/or bug fix in an effort to reduce the number of commits for this challenge.  In team/production environments, git commits should only include 1 bug fix or 1 feature (depending on size of feature, it may be to be broken down into manageable components)
 - Basic unit tests have been included.  For UI UnitTesting, I would have used Espresso.
+- Pressing the soft keyboard check/done button on the "cent" field will simply dismiss the keyboard.  Consideration: It can be wired up to start the conversion for a better UX.
 
 
 ### Design Decisions:
