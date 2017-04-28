@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.example.ken.worldcurrencyconverter.model.datasource.ExchangeRatesRepository;
 import com.example.ken.worldcurrencyconverter.model.datasource.local.ExchangeRatesLocalDataSource;
-import com.example.ken.worldcurrencyconverter.model.datasource.remote.ExchangeRatesRemoteDataSource;
 import com.example.ken.worldcurrencyconverter.model.ExchangeRatesResponse;
 
 import java.net.UnknownHostException;
@@ -108,7 +107,6 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
             mBaseCurrency = baseCurrency;
         } else {
             Log.e(TAG, "Null or Empty Base Currency");
-            // TODO: Show error
         }
     }
 

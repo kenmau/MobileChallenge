@@ -60,8 +60,7 @@ public class ExchangeRatesLocalDataSource implements ExchangeRatesDataSource.Loc
     }
 
     public void saveRates(ExchangeRatesResponse response) {
-        // TODO Save with respect to the base currency code
-        // Persist Categories
+        // Persist Rates
         Gson g = new Gson();
 
         SharedPreferences settings = ApplicationController.getAppContext().getSharedPreferences("PREFS", Context.MODE_PRIVATE);

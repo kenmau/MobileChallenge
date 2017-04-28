@@ -7,7 +7,6 @@ import com.example.ken.worldcurrencyconverter.model.datasource.remote.ExchangeRa
 import java.util.Calendar;
 
 import io.reactivex.Observable;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by ken on 2017-04-25.

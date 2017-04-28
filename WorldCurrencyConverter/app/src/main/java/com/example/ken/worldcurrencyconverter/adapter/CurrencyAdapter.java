@@ -33,7 +33,6 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(CurrencyAdapter.ViewHolder holder, int position) {
-        // TODO
         holder.currencyCode.setText(mCurrencyCode.get(position));
         holder.currencyValue.setText(String.format("%.2f", mRates.get(position)*baseValue));
     }

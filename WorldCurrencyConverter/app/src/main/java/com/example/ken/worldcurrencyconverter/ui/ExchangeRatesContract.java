@@ -2,9 +2,7 @@ package com.example.ken.worldcurrencyconverter.ui;
 
 import com.example.ken.worldcurrencyconverter.BasePresenter;
 import com.example.ken.worldcurrencyconverter.BaseView;
-import com.example.ken.worldcurrencyconverter.model.Rates;
 
-import java.util.List;
 import java.util.Map;
 
 /**

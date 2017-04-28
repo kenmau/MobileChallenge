@@ -23,12 +23,6 @@ public class ExchangeRatesResponse {
         rates = new HashMap<>();
     }
 
-//    public static ExchangeRatesResponse parseJSON(String response) {
-//        Gson gson = new GsonBuilder().create();
-//        ExchangeRatesResponse exchangeRatesResponse = gson.fromJson(response, ExchangeRatesResponse.class);
-//        return exchangeRatesResponse;
-//    }
-
     public String getBase() {
         return base;
     }

@@ -1,6 +1,5 @@
 package com.example.ken.worldcurrencyconverter.ui;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -8,11 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -28,18 +24,12 @@ import com.example.ken.worldcurrencyconverter.adapter.CurrencyAdapter;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
-import org.reactivestreams.Subscription;
-
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
@@ -177,9 +167,7 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
                 .subscribe(new Consumer<Object>() {
                     @Override
                     public void accept(Object o) throws Exception {
-                        // TODO Should this go here?
                         hideKeyboard();
-
                         mPresenter.fetchRates();
                     }
                 });
@@ -189,9 +177,7 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
                 createCurrencyCodeSpinnerObservable().subscribe(new Consumer<String>() {
                     @Override
                     public void accept(String s) throws Exception {
-                        // TODO Should this go here?
                         hideKeyboard();
-
                         mPresenter.setBaseCurrency(s);
                     }
                 });
