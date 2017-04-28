@@ -4,9 +4,14 @@
     <string name="currency_code_placeholder">XYZ</string>
     <string name="currency_value_placeholder">123.45</string>
 
+    <string name="dollar_hint_text">######</string>
+    <string name="cent_hint_text">##</string>
+
     <string name="convert">Amount:</string>
     <string name="convert_button">CONVERT</string>
 
     <string name="check_internet_connection">Check Internet Connection!</string>
-    <string name="enter_number_between">Please enter an amount between 0 and </string>
+    <string name="enter_number_between">Please enter an amount between 0 and %1$s</string>
+
+    <string name="last_updated">Exchange Rates as of: %1$s</string>
 </resources>

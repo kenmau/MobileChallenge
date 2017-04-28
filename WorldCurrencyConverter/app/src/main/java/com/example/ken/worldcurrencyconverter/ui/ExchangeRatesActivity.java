@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.ken.worldcurrencyconverter.R;
 import com.example.ken.worldcurrencyconverter.adapter.CurrencyAdapter;
@@ -48,6 +49,7 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
     private EditText mCentsEditText;
     private Spinner mCurrencyCodeSpinner;
     private Button mGoButton;
+    private TextView mLastUpdatedTextView;
     private RecyclerView mRecyclerViewCurrencies;
     private ProgressBar mProgressBar;
 
@@ -92,6 +94,7 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
         mCentsEditText = (EditText) findViewById(R.id.etCents);
         mCurrencyCodeSpinner = (Spinner) findViewById(R.id.spinCurrencyCode);
         mGoButton = (Button) findViewById(R.id.bGo);
+        mLastUpdatedTextView = (TextView) findViewById(R.id.tvLastUpdated);
         mRecyclerViewCurrencies = (RecyclerView) findViewById(R.id.rvCurrencies);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
@@ -208,6 +211,18 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
     }
 
     @Override
+    public void setLastUpdated(String lastUpdated) {
+        mLastUpdatedTextView.setVisibility(View.VISIBLE);
+        mLastUpdatedTextView.setText(String.format(getResources().getString(R.string.last_updated), lastUpdated));
+    }
+
+    @Override
+    public void clearLastUpdated() {
+        mLastUpdatedTextView.setVisibility(View.GONE);
+        mLastUpdatedTextView.setText("");
+    }
+
+    @Override
     public void showProgressBar() {
         mProgressBar.setVisibility(View.VISIBLE);
     }
@@ -226,12 +241,12 @@ public class ExchangeRatesActivity extends AppCompatActivity implements Exchange
 
     @Override
     public void showInvalidInputDollarsEditText() {
-        mDollarsEditText.setError(getResources().getString(R.string.enter_number_between) + Integer.MAX_VALUE);
+        mDollarsEditText.setError(String.format(getResources().getString(R.string.enter_number_between), String.format("%d",(Integer.MAX_VALUE))));
     }
 
     @Override
     public void showInvalidInputCentsEditText() {
-        mDollarsEditText.setError(getResources().getString(R.string.enter_number_between) + "99");
+        mDollarsEditText.setError(String.format(getResources().getString(R.string.enter_number_between), "99"));
     }
 
 

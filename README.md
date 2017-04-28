@@ -13,6 +13,7 @@
 - My git commits may include more than 1 feature and/or bug fix in an effort to reduce the number of commits for this challenge.  In team/production environments, git commits should only include 1 bug fix or 1 feature (depending on size of feature, it may be to be broken down into manageable components)
 - Basic unit tests have been included.  For UI UnitTesting, I would have used Espresso.
 - Pressing the soft keyboard check/done button on the "cent" field will simply dismiss the keyboard.  Consideration: It can be wired up to start the conversion for a better UX.
+- It is somewhat difficult to tell from the UI whether rates have been fetched from cache (< 30 minutes) or refreshed from network.  This can be improved.  But for now, progress indicator means network request.
 
 
 ### Design Decisions:
@@ -22,6 +23,7 @@
 - RxAndroid was used to reduce complexities with the architecture and implementation: the networking with Retrofit, simplify threading of operations to be run on the Android main thread vs background thread
 - RxBinding was used to simplify view bindings with EditTexts and Buttons.
 - Persistence is done using Shared Preferences.  Simplest to get setup and string serialization/deserialization to JSON <-> POJO is straight forward with the help of GSON parser.
+- An indeterminate progress bar will show up if rates are being fetched from the network.  I could add a "Last Updated" 
 
 - Clean and contemporary UI presentation with the use of Material Design Android style Cards.
 - More design could be done to handle numbers which exceed the card width.  But instead of spending more hours perfecting the UI, I chose to do more testing.

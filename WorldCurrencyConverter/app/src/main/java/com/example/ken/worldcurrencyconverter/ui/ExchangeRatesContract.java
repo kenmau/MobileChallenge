@@ -16,6 +16,10 @@ public interface ExchangeRatesContract {
         void clearRates();
         void setRates(Map<String, Double> rates, Double amount);
 
+        void setLastUpdated(String lastUpdated);
+        void clearLastUpdated();
+
+
         void showProgressBar();
         void hideProgressBar();
 

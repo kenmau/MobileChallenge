@@ -142,6 +142,13 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
                 // Handle network errors
                 if (e instanceof UnknownHostException) {
                     mView.showConnectionError();
+                    mView.clearRates();
+                    mView.clearLastUpdated();
+                } else {
+                    // Pretty much do the same thing unless we think otherwise.
+                    mView.showConnectionError();
+                    mView.clearRates();
+                    mView.clearLastUpdated();
                 }
                 e.printStackTrace();
 
@@ -157,6 +164,7 @@ public class ExchangeRatesPresenter implements ExchangeRatesContract.Presenter {
 
                 mView.clearRates();
                 mView.setRates(data.getRates(), combinedAmount);
+                mView.setLastUpdated(data.getDate());
 
                 mView.hideProgressBar();
             }
